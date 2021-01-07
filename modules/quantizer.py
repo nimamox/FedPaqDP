@@ -64,3 +64,5 @@ def decode(code, cuda=False):
         flat[code['selected']] = code['norm'] * signs.float()
 
     return v
+
+print()

@@ -22,6 +22,16 @@ class Trainer:
         self.num_round = args['num_round']
         self.clients_per_round = args['clients_per_round']
         self.verbose = args['verbose']
+        
+        self.subsampling = args['subsampling']
+        self.gamma = args['subsampling_gamma']
+        
+        self.secure = args['secure']
+        if self.secure:
+            self.clip = args['secure_clip'] 
+            self.epsilon = args['secure_epsilon']
+            self.delta = args['secure_delta']
+            
 
         self.model = Model(args)
         self.move_model_to_gpu(self.model, args)
@@ -49,7 +59,8 @@ class Trainer:
         all_clients = []
         for user in users:
             self.all_train_data_size += len(train_data[user])
-            c = Client(user, train_data[user], test_data[user], self.bs, self.worker)
+            c = Client(user, train_data[user], test_data[user], self.bs, self.worker,
+                       self.subsampling, self.gamma)
             all_clients.append(c)
         return all_clients
 
@@ -104,7 +115,12 @@ class Trainer:
         num = 0
         for local_soln in solns:
             if self.args['quantize']:
-                code = encode(local_soln - self.latest_model, self.args['quan_level'])
+                if self.secure:
+                    sigma_ampl = np.sqrt(8 * self.gamma ** 2 * np.log(1.25 * self.gamma / self.delta)) * self.clip / self.epsilon
+                    noise = torch.FloatTensor(local_soln.shape).normal_(0, sigma_ampl)
+                    code = encode(local_soln - self.latest_model + noise, self.args['quan_level'])
+                else:
+                    code = encode(local_soln - self.latest_model, self.args['quan_level'])
                 local_soln = decode(code, self.args['gpu']) + self.latest_model
             aggregated_soln += local_soln
             num += 1

@@ -10,11 +10,11 @@ def main():
     args['dataset'] = '2_digits_per_client'
     args['model'] = 'logistic'
     args['wd'] = 0.001
-    args['verbose'] = False
+    args['verbose'] = True
     args['num_iters'] = 1000
-    args['local_iters'] = 100
+    args['local_iters'] = 100 #<~~~~
     args['num_round'] = args['num_iters'] // args['local_iters']
-    args['clients_per_round'] = 100
+    args['clients_per_round'] = 100 #<~~~~
     args['bs'] = 64
     args['lr'] = 0.1
     args['seed'] = 0
@@ -24,6 +24,21 @@ def main():
     args['quan_level'] = 10
     args['gpu'] = True
     args['gpu'] = args['gpu'] and torch.cuda.is_available()
+    
+    
+    args['secure'] = True
+    args['secure_epsilon'] = 1.0
+    args['secure_delta'] = 10e-4
+    
+    args['clipping'] = True
+    args['secure_clip'] = 1.0
+    
+    args['subsampling'] = True
+    args['subsampling_gamma'] = .5
+
+    
+    if args['secure']:
+        args['clipping'] = True
 
     # Set random seed
     np.random.seed((1 + args['seed']))

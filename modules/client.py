@@ -1,13 +1,20 @@
 from torch.utils.data import DataLoader
 
+from torch.utils.data import Subset
+import numpy as np
 
 class Client:
-    def __init__(self, cid, train_data, test_data, bs, worker):
+    def __init__(self, cid, train_data, test_data, bs, worker, subsampling=False, gamma=1.0):
         self.cid = cid
         self.worker = worker
 
         self.train_data = train_data
         self.test_data = test_data
+        
+        self.subsampling = subsampling
+        self.gamma = gamma
+        self.bs = bs
+        
         self.train_dataloader = DataLoader(train_data, batch_size=bs, shuffle=True)
         self.test_dataloader = DataLoader(test_data, batch_size=bs, shuffle=False)
 
@@ -24,6 +31,11 @@ class Client:
         self.worker.set_flat_model_params(flat_params)
 
     def train_client(self, **kwargs):
+        if self.subsampling:
+            data_size = self.train_data.data.shape[0]
+            ind = np.random.choice(range(data_size), int(data_size * self.gamma), replace=False)
+            self.train_dataloader = DataLoader(Subset(self.train_data, ind), batch_size=self.bs, shuffle=True)
+        
         local_solution, worker_stats = self.worker.train(self.train_dataloader, **kwargs)
         return local_solution, worker_stats
 
