@@ -26,6 +26,8 @@ class Trainer:
         self.subsampling = args['subsampling']
         self.gamma = args['subsampling_gamma']
         
+        self.gpu = args['gpu']
+        
         self.secure = args['secure']
         if self.secure:
             self.clip = args['secure_clip'] 
@@ -117,7 +119,10 @@ class Trainer:
             if self.args['quantize']:
                 if self.secure:
                     sigma_ampl = np.sqrt(8 * self.gamma ** 2 * np.log(1.25 * self.gamma / self.delta)) * self.clip / self.epsilon
-                    noise = torch.FloatTensor(local_soln.shape).normal_(0, sigma_ampl)
+                    if self.gpu:
+                        noise = torch.cuda.FloatTensor(local_soln.shape).normal_(0, sigma_ampl)
+                    else:
+                        noise = torch.FloatTensor(local_soln.shape).normal_(0, sigma_ampl)
                     code = encode(local_soln - self.latest_model + noise, self.args['quan_level'])
                 else:
                     code = encode(local_soln - self.latest_model, self.args['quan_level'])

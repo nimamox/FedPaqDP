@@ -12,9 +12,9 @@ def main():
     args['wd'] = 0.001
     args['verbose'] = True
     args['num_iters'] = 1000
-    args['local_iters'] = 100 #<~~~~
+    args['local_iters'] = 100
     args['num_round'] = args['num_iters'] // args['local_iters']
-    args['clients_per_round'] = 100 #<~~~~
+    args['clients_per_round'] = 100 
     args['bs'] = 64
     args['lr'] = 0.1
     args['seed'] = 0

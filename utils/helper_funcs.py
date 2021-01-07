@@ -133,11 +133,15 @@ class Metrics:
         self.acc_on_eval_data = [0] * num_rounds
 
         self.result_path = mkdir(os.path.join('./result', self.args['dataset']))
+        prefix = 'S{}_eps{:.4f}_delt{:.4f}_clip{:.3f}_SS{}_Gamma{:.3f}'.format(int(args['secure']), 
+                 args['secure_epsilon'], args['secure_delta'], args['secure_clip'], 
+                 int(args['subsampling']), args['subsampling_gamma'])
         if args['quantize'] == False:
             suffix = 'E{}_M{}_s{}'.format(args['local_iters'], args['clients_per_round'], 100)
         else:
             suffix = 'E{}_M{}_s{}'.format(args['local_iters'], args['clients_per_round'], args['quan_level'])
-        self.exp_name = '{}'.format(suffix)
+        self.exp_name = '{}__{}'.format(prefix, suffix)
+        print()
 
     def update_train_stats(self, round_i, train_stats):
         self.loss_on_train_data[round_i] = train_stats['loss']
@@ -161,6 +165,16 @@ class Metrics:
         metrics['acc_on_train_data'] = self.acc_on_train_data
         metrics['loss_on_eval_data'] = self.loss_on_eval_data
         metrics['acc_on_eval_data'] = self.acc_on_eval_data
+        
+        metrics['secure'] = self.args['secure']
+        metrics['secure_epsilon'] = self.args['secure_epsilon']
+        metrics['secure_delta'] = self.args['secure_delta']
+        
+        metrics['clipping'] = self.args['clipping']
+        metrics['secure_clip'] = self.args['secure_clip'] 
+        
+        metrics['subsampling'] = self.args['subsampling'] 
+        metrics['subsampling_gamma'] = self.args['subsampling_gamma']    
 
         mkdir(os.path.join(self.result_path, self.exp_name))
         metrics_dir = os.path.join(self.result_path, self.exp_name, 'metrics.json')
