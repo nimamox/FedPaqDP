@@ -14,11 +14,11 @@ class Worker:
         self.gpu = args['gpu']
         self.secure = args['secure']
         self.clipping = args['clipping']
-        if self.clipping:
+        if self.clipping == 1:
             self.train_criterion = nn.CrossEntropyLoss(reduction='none')
-            self.clip = args['secure_clip'] 
         else:
             self.train_criterion = nn.CrossEntropyLoss()
+        self.clip = args['secure_clip'] 
         self.test_criterion = nn.CrossEntropyLoss()
 
     def get_model_params(self):
@@ -50,7 +50,7 @@ class Worker:
                 self.optimizer.zero_grad()
                 pred = self.model(x)
                 loss = self.train_criterion(pred, y)
-                if self.clipping:
+                if self.clipping == 1:
                     saved_var = dict()
                     for tensor_name, tensor in self.model.named_parameters():
                         saved_var[tensor_name] = torch.zeros_like(tensor)
@@ -64,7 +64,10 @@ class Worker:
                         self.model.zero_grad()
                         
                     for tensor_name, tensor in self.model.named_parameters():
-                        tensor.grad = saved_var[tensor_name]
+                        tensor.grad = saved_var[tensor_name] / loss.shape[0]
+                elif self.clipping == 2:
+                    loss.backward()
+                    torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.clip)
                 else:
                     loss.backward()
                     torch.nn.utils.clip_grad_norm_(self.model.parameters(), 60)

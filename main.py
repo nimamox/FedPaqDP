@@ -3,6 +3,7 @@ import torch
 import os
 from modules.trainer import Trainer
 from utils.helper_funcs import read_data
+import json
 
 
 def main():
@@ -12,9 +13,9 @@ def main():
     args['wd'] = 0.001
     args['verbose'] = True
     args['num_iters'] = 1000
-    args['local_iters'] = 100
+    args['local_iters'] = 10
     args['num_round'] = args['num_iters'] // args['local_iters']
-    args['clients_per_round'] = 100 
+    args['clients_per_round'] = 10 
     args['bs'] = 64
     args['lr'] = 0.1
     args['seed'] = 0
@@ -26,19 +27,21 @@ def main():
     args['gpu'] = args['gpu'] and torch.cuda.is_available()
     
     
-    args['secure'] = True
+    args['secure'] = False
     args['secure_epsilon'] = 1.0
     args['secure_delta'] = 10e-4
     
-    args['clipping'] = True
-    args['secure_clip'] = 1.0
+    args['clipping'] = 1
+    args['secure_clip'] = 2.0
     
-    args['subsampling'] = True
-    args['subsampling_gamma'] = .5
+    args['subsampling'] = False
+    args['subsampling_gamma'] = .6
 
     
     if args['secure']:
         args['clipping'] = True
+
+    print(json.dumps(args, sort_keys=True, indent=4))
 
     # Set random seed
     np.random.seed((1 + args['seed']))
