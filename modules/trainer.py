@@ -116,16 +116,17 @@ class Trainer:
 
         num = 0
         for local_soln in solns:
-            if self.args['quantize']:
-                if self.secure:
-                    sigma_ampl = np.sqrt(8 * self.gamma ** 2 * np.log(1.25 * self.gamma / self.delta)) * self.clip / self.epsilon
-                    if self.gpu:
-                        noise = torch.cuda.FloatTensor(local_soln.shape).normal_(0, sigma_ampl)
-                    else:
-                        noise = torch.FloatTensor(local_soln.shape).normal_(0, sigma_ampl)
-                    code = encode(local_soln - self.latest_model + noise, self.args['quan_level'])
+            if self.secure:
+                sigma_orig = np.sqrt(2 * np.log(1.25 / self.delta)) * self.clip / self.epsilon
+                sigma_ampl = np.sqrt(8 * self.gamma ** 2 * np.log(1.25 * self.gamma / self.delta)) * self.clip / self.epsilon
+                sigma = min(sigma_orig, sigma_ampl)
+                if self.gpu:
+                    noise = torch.cuda.FloatTensor(local_soln.shape).normal_(0, sigma_ampl)
                 else:
-                    code = encode(local_soln - self.latest_model, self.args['quan_level'])
+                    noise = torch.FloatTensor(local_soln.shape).normal_(0, sigma_ampl)
+                local_soln += noise
+            if self.args['quantize']:
+                code = encode(local_soln - self.latest_model, self.args['quan_level'])
                 local_soln = decode(code, self.args['gpu']) + self.latest_model
             aggregated_soln += local_soln
             num += 1
