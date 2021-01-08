@@ -132,7 +132,7 @@ class Trainer:
             num += 1
         aggregated_soln /= num
         if self.args['verbose2']:
-            print('sigma:', sigma)
+            print('sigma:', sigma_ampl)
 
         return aggregated_soln.detach()
 
