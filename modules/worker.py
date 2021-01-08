@@ -44,7 +44,9 @@ class Worker:
         
         for iter in range(self.local_iters):
             train_loss = train_acc = train_total = 0
+            count = 0
             for batch_idx, (x, y) in enumerate(train_dataloader):
+                count += y.size(0)
                 if self.gpu:
                     x, y = x.cuda(), y.cuda()
                 self.optimizer.zero_grad()
@@ -77,7 +79,7 @@ class Worker:
                 correct = predicted.eq(y).sum().item()
                 target_size = y.size(0)
                 
-                if self.clipping:
+                if self.clipping == 1:
                     train_loss += torch.mean(loss).item() * y.size(0)
                 else:
                     train_loss += loss.item() * y.size(0)
@@ -86,7 +88,8 @@ class Worker:
 
         local_soln = self.get_flat_model_params()
         stat_dict = {"loss": train_loss / train_total,
-                     "acc": train_acc / train_total}
+                     "acc": train_acc / train_total,
+                     "samplesize": count}
 
         return local_soln, stat_dict
 

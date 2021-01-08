@@ -11,11 +11,12 @@ def main():
     args['dataset'] = '2_digits_per_client'
     args['model'] = 'logistic'
     args['wd'] = 0.001
-    args['verbose'] = True
+    args['verbose'] = False
+    args['verbose2'] = True
     args['num_iters'] = 1000
     args['local_iters'] = 10
     args['num_round'] = args['num_iters'] // args['local_iters']
-    args['clients_per_round'] = 10 
+    args['clients_per_round'] = 10
     args['bs'] = 64
     args['lr'] = 0.1
     args['seed'] = 0
@@ -27,19 +28,20 @@ def main():
     args['gpu'] = args['gpu'] and torch.cuda.is_available()
     
     
-    args['secure'] = False
+    args['secure'] = True
     args['secure_epsilon'] = 1.0
     args['secure_delta'] = 10e-4
     
-    args['clipping'] = 1
-    args['secure_clip'] = 2.0
+    args['clipping'] = 2
+    args['secure_clip'] = .5
     
-    args['subsampling'] = False
-    args['subsampling_gamma'] = .6
+    args['subsampling'] = True
+    args['subsampling_gamma'] = .5
 
     
     if args['secure']:
-        args['clipping'] = True
+        if not args['clipping']:
+          args['clipping'] = 1
 
     print(json.dumps(args, sort_keys=True, indent=4))
 

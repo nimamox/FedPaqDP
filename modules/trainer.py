@@ -85,7 +85,7 @@ class Trainer:
 
             solns, stats = self.local_train(round_i, selected_clients)
 
-            self.latest_model = self.aggregate(solns)
+            self.latest_model = self.aggregate(solns, stats=stats)
             self.optimizer.inverse_prop_decay_learning_rate(round_i, self.args['local_iters'])
 
         self.test_latest_model_on_traindata(self.num_round)
@@ -115,15 +115,15 @@ class Trainer:
         aggregated_soln = torch.zeros_like(self.latest_model)
 
         num = 0
-        for local_soln in solns:
+        for i, local_soln in enumerate(solns):
             if self.secure:
-                sigma_orig = np.sqrt(2 * np.log(1.25 / self.delta)) * self.clip / self.epsilon
+                #sigma_orig = np.sqrt(2 * np.log(1.25 / self.delta)) * self.clip / self.epsilon
                 sigma_ampl = np.sqrt(8 * self.gamma ** 2 * np.log(1.25 * self.gamma / self.delta)) * self.clip / self.epsilon
-                sigma = min(sigma_orig, sigma_ampl)
                 if self.gpu:
                     noise = torch.cuda.FloatTensor(local_soln.shape).normal_(0, sigma_ampl)
                 else:
                     noise = torch.FloatTensor(local_soln.shape).normal_(0, sigma_ampl)
+                noise /= kwargs['stats'][i]['samplesize']
                 local_soln += noise
             if self.args['quantize']:
                 code = encode(local_soln - self.latest_model, self.args['quan_level'])
@@ -131,13 +131,15 @@ class Trainer:
             aggregated_soln += local_soln
             num += 1
         aggregated_soln /= num
+        if self.args['verbose2']:
+            print('sigma:', sigma)
 
         return aggregated_soln.detach()
 
     def test_latest_model_on_traindata(self, round_i):
         stats = self.local_test(use_eval_data=False)
         self.metrics.update_train_stats(round_i, stats)
-        if self.verbose:
+        if self.verbose or self.args['verbose2']:
             print('\n>>> Round: {: >4d} / Acc: {:.3%} / Loss: {:.4f} /'.format(
                 round_i, stats['acc'], stats['loss']))
             print('=' * 102 + "\n")
