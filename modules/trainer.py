@@ -86,7 +86,10 @@ class Trainer:
             solns, stats = self.local_train(round_i, selected_clients)
 
             self.latest_model = self.aggregate(solns, stats=stats)
-            self.optimizer.inverse_prop_decay_learning_rate(round_i, self.args['local_iters'])
+            if self.args['lr_sched']==1:
+                self.optimizer.inverse_prop_decay_learning_rate(round_i, self.args['local_iters'])
+            elif self.args['lr_sched']==2:
+                self.optimizer.inverse_prop_decay_learning_rate2(round_i, self.args['local_iters'])
 
         self.test_latest_model_on_traindata(self.num_round)
         self.test_latest_model_on_evaldata(self.num_round)
@@ -133,7 +136,8 @@ class Trainer:
             num += 1
         aggregated_soln /= num
         if self.args['verbose2']:
-            print('sigma:', sigma_ampl)
+            print('sample_size: ~{}\t subsample_size: ~{}'.format(kwargs['stats'][i]['sample_size'], kwargs['stats'][i]['subsample_size']))
+            print('sigma: {}\t nn: ~{}'.format(sigma_ampl, sigma_ampl/kwargs['stats'][i]['sample_size']))
 
         return aggregated_soln.detach()
 

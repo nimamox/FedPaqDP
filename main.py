@@ -19,6 +19,7 @@ def main():
     args['clients_per_round'] = 10
     args['bs'] = 64
     args['lr'] = 0.1
+    args['lr_sched'] = 2
     args['seed'] = 0
     args['input_shape'] = 784
     args['num_class'] = 10
@@ -33,10 +34,10 @@ def main():
     args['secure_delta'] = 10e-4
     
     args['clipping'] = 2
-    args['secure_clip'] = .5
+    args['secure_clip'] = 2
     
     args['subsampling'] = True
-    args['subsampling_gamma'] = .5
+    args['subsampling_gamma'] = .8
 
     
     if args['secure']:
