@@ -34,9 +34,11 @@ class Client:
         if self.subsampling:
             data_size = self.train_data.data.shape[0]
             ind = np.random.choice(range(data_size), int(data_size * self.gamma), replace=False)
-            self.train_dataloader = DataLoader(Subset(self.train_data, ind), batch_size=self.bs, shuffle=True)
+            train_dataloader = DataLoader(Subset(self.train_data, ind), batch_size=self.bs, shuffle=True)
+        else:
+            train_dataloader = self.train_dataloader
         
-        local_solution, worker_stats = self.worker.train(self.train_dataloader, **kwargs)
+        local_solution, worker_stats = self.worker.train(train_dataloader, **kwargs)
         return local_solution, worker_stats
 
     def test_client(self, use_eval_data=True):
