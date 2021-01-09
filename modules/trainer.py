@@ -137,7 +137,8 @@ class Trainer:
         aggregated_soln /= num
         if self.args['verbose2']:
             print('sample_size: ~{}\t subsample_size: ~{}'.format(kwargs['stats'][i]['sample_size'], kwargs['stats'][i]['subsample_size']))
-            print('sigma: {}\t nn: ~{}'.format(sigma_ampl, sigma_ampl/kwargs['stats'][i]['sample_size']))
+            if self.secure:
+                print('sigma: {}\t nn: ~{}'.format(sigma_ampl, sigma_ampl/kwargs['stats'][i]['sample_size']))
 
         return aggregated_soln.detach()
 

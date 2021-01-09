@@ -5,6 +5,12 @@ from modules.trainer import Trainer
 from utils.helper_funcs import read_data
 import json
 
+def set_seed(seed, gpu=True):
+    # Set random seed
+    np.random.seed((1 + seed))
+    torch.manual_seed(12 + seed)
+    if gpu:
+        torch.cuda.manual_seed_all(123 + seed)    
 
 def main():
     args = dict()
@@ -27,38 +33,55 @@ def main():
     args['quan_level'] = 10
     args['gpu'] = True
     args['gpu'] = args['gpu'] and torch.cuda.is_available()
-    
-    
+
+
     args['secure'] = True
     args['secure_epsilon'] = 1.0
     args['secure_delta'] = 10e-4
-    
+
     args['clipping'] = 2
     args['secure_clip'] = 2
-    
+
     args['subsampling'] = True
     args['subsampling_gamma'] = .8
 
-    
+
     if args['secure']:
         if not args['clipping']:
-          args['clipping'] = 1
+            args['clipping'] = 1
 
-    print(json.dumps(args, sort_keys=True, indent=4))
-
-    # Set random seed
-    np.random.seed((1 + args['seed']))
-    torch.manual_seed(12 + args['seed'])
-    if args['gpu']:
-        torch.cuda.manual_seed_all(123 + args['seed'])
+    set_seed(args['seed'], args['gpu'])
 
     train_path = os.path.join('./data/mnist/data/train', args['dataset'])
     test_path = os.path.join('./data/mnist/data/test', args['dataset'])
 
     dataset = read_data(train_path, test_path)
 
-    trainer = Trainer(args, dataset)
-    trainer.train()
+
+    for clip in [.5, 1, 1.5, 2]:
+        args['secure_clip'] = clip
+        for eps in [0]:
+            args['secure'] = False
+            args['secure_epsilon'] = eps
+            for gamma in [.2, .4, .6, .8]:
+                args['subsampling_gamma'] = gamma
+
+                print(json.dumps(args, sort_keys=True, indent=4))
+                set_seed(args['seed'], args['gpu'])
+                trainer = Trainer(args, dataset)
+                trainer.train()
+
+    # for clip in [.5]:
+    #     args['secure_clip'] = clip
+    #     for eps in [.5, 1.0, 1.5, 2.0]:
+    #         args['secure_epsilon'] = eps
+    #         for gamma in [.2, .4, .6, .8]:
+    #             args['subsampling_gamma'] = gamma
+
+    #             print(json.dumps(args, sort_keys=True, indent=4))
+    #             set_seed(args['seed'], args['gpu'])
+    #             trainer = Trainer(args, dataset)
+    #             trainer.train()
 
 
 if __name__ == '__main__':
