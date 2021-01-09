@@ -100,6 +100,7 @@ class Trainer:
             c.set_flat_model_params(self.latest_model)
 
             soln, stat = c.train_client()
+            stat['sample_size'] = c.train_data.data.shape[0]
             if self.verbose:
                 print("Round: {:>2d} | CID: {: >3d} ({:>2d}/{:>2d})| "
                       "Loss {:>.4f} | Acc {:>5.2f}%".format(
@@ -123,7 +124,7 @@ class Trainer:
                     noise = torch.cuda.FloatTensor(local_soln.shape).normal_(0, sigma_ampl)
                 else:
                     noise = torch.FloatTensor(local_soln.shape).normal_(0, sigma_ampl)
-                noise /= kwargs['stats'][i]['samplesize']
+                noise /= kwargs['stats'][i]['sample_size']
                 local_soln += noise
             if self.args['quantize']:
                 code = encode(local_soln - self.latest_model, self.args['quan_level'])

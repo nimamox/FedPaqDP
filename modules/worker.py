@@ -89,7 +89,7 @@ class Worker:
         local_soln = self.get_flat_model_params()
         stat_dict = {"loss": train_loss / train_total,
                      "acc": train_acc / train_total,
-                     "samplesize": count}
+                     "subsample_size": count}
 
         return local_soln, stat_dict
 
