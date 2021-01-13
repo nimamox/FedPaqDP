@@ -137,9 +137,9 @@ class Metrics:
                  args['secure_epsilon'], args['secure_delta'], int(args['clipping']), args['secure_clip'], 
                  int(args['subsampling']), args['subsampling_gamma'], args['lr_sched'], args['bs'])
         if args['quantize'] == False:
-            suffix = 'E{}_M{}_s{}'.format(args['local_iters'], args['clients_per_round'], 100)
+            suffix = 'E{}_M{}_s{}_R{}'.format(args['local_iters'], args['clients_per_round'], 100, args['num_round'])
         else:
-            suffix = 'E{}_M{}_s{}'.format(args['local_iters'], args['clients_per_round'], args['quan_level'])
+            suffix = 'E{}_M{}_s{}_R{}'.format(args['local_iters'], args['clients_per_round'], args['quan_level'], args['num_round'])
         self.exp_name = '{}__{}'.format(prefix, suffix)
         print()
 

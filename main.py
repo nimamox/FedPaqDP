@@ -57,19 +57,89 @@ def main():
 
     dataset = read_data(train_path, test_path)
 
+    # for E in [80, 90]:
+    #   args['secure'] = False
+    #   args['secure_epsilon'] = 0.0
+    #   args['secure_delta'] = 0.0
+    #   args['subsampling'] = False
+    #   args['subsampling_gamma'] = 0.0
+    #   args['clipping'] = 0
+    #   args['secure_clip'] = 0
+    #   args['clients_per_round'] = 10
+    #   args['verbose2'] = False
+    #   args['local_iters'] = E
+    #   args['num_round'] = args['num_iters'] // args['local_iters']
 
-    for clip in [.5, 1, 1.5, 2]:
-        args['secure_clip'] = clip
-        for eps in [0]:
-            args['secure'] = False
-            args['secure_epsilon'] = eps
-            for gamma in [.2, .4, .6, .8]:
-                args['subsampling_gamma'] = gamma
+    #   print(json.dumps(args, sort_keys=True, indent=4))
+    #   set_seed(args['seed'], args['gpu'])
+    #   trainer = Trainer(args, dataset)
+    #   trainer.train()
 
-                print(json.dumps(args, sort_keys=True, indent=4))
-                set_seed(args['seed'], args['gpu'])
-                trainer = Trainer(args, dataset)
-                trainer.train()
+    # for E in [1, 10, 100]:
+    #   args['secure'] = False
+    #   args['secure_epsilon'] = 0.0
+    #   args['secure_delta'] = 0.0
+    #   args['subsampling'] = False
+    #   args['subsampling_gamma'] = 0.0
+    #   args['clipping'] = 0
+    #   args['secure_clip'] = 0
+    #   args['clients_per_round'] = 10
+    #   args['verbose2'] = False
+    #   args['local_iters'] = E
+    #   args['num_round'] = args['num_iters'] // args['local_iters']
+
+    #   print(json.dumps(args, sort_keys=True, indent=4))
+    #   set_seed(args['seed'], args['gpu'])
+    #   trainer = Trainer(args, dataset)
+    #   trainer.train()
+
+    # for s in [1, 10, 100]:
+    #   args['secure'] = False
+    #   args['secure_epsilon'] = 0.0
+    #   args['secure_delta'] = 0.0
+    #   args['subsampling'] = False
+    #   args['subsampling_gamma'] = 0.0
+    #   args['clipping'] = 0
+    #   args['secure_clip'] = 0
+    #   args['clients_per_round'] = 10
+    #   args['verbose2'] = False
+    #   args['quan_level'] = s
+    #   if s == 100:
+    #     args['quantize'] = False
+
+    #   print(json.dumps(args, sort_keys=True, indent=4))
+    #   set_seed(args['seed'], args['gpu'])
+    #   trainer = Trainer(args, dataset)
+    #   trainer.train()
+
+    # for M in [1, 10, 100]:
+    #   args['secure'] = False
+    #   args['secure_epsilon'] = 0.0
+    #   args['secure_delta'] = 0.0
+    #   args['subsampling'] = False
+    #   args['subsampling_gamma'] = 0.0
+    #   args['clipping'] = 0
+    #   args['secure_clip'] = 0
+    #   args['clients_per_round'] = M
+    #   args['verbose2'] = False
+
+    #   print(json.dumps(args, sort_keys=True, indent=4))
+    #   set_seed(args['seed'], args['gpu'])
+    #   trainer = Trainer(args, dataset)
+    #   trainer.train()
+
+    # for clip in [.5, 1, 1.5, 2]:
+    #     args['secure_clip'] = clip
+    #     for eps in [0]:
+    #         args['secure'] = False
+    #         args['secure_epsilon'] = eps
+    #         for gamma in [.2, .4, .6, .8]:
+    #             args['subsampling_gamma'] = gamma
+
+    #             print(json.dumps(args, sort_keys=True, indent=4))
+    #             set_seed(args['seed'], args['gpu'])
+    #             trainer = Trainer(args, dataset)
+    #             trainer.train()
 
     # for clip in [.5]:
     #     args['secure_clip'] = clip
@@ -83,6 +153,17 @@ def main():
     #             trainer = Trainer(args, dataset)
     #             trainer.train()
 
+    for clip in [2.0]:
+        args['secure_clip'] = clip
+        for eps in [.2]:
+            args['secure_epsilon'] = eps
+            for gamma in [.6]:
+                args['subsampling_gamma'] = gamma
+
+                print(json.dumps(args, sort_keys=True, indent=4))
+                set_seed(args['seed'], args['gpu'])
+                trainer = Trainer(args, dataset)
+                trainer.train()
 
 if __name__ == '__main__':
     main()
